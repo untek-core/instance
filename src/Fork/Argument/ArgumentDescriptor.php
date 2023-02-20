@@ -1,12 +1,10 @@
 <?php
 
-namespace Untek\Core\Instance\Libs\Resolvers;
+namespace Untek\Core\Instance\Fork\Argument;
 
-use Untek\Core\Instance\Fork\Argument\ArgumentDescription;
-use Untek\Core\Instance\Fork\Argument\ArgumentDescriptions;
 use Doctrine\Common\Util\ClassUtils;
 
-class ArgumentDescriptor extends \Untek\Core\Instance\Fork\Argument\ArgumentDescriptor
+class ArgumentDescriptor
 {
     /**
      * Get argument descriptions of a callable.
@@ -56,8 +54,8 @@ class ArgumentDescriptor extends \Untek\Core\Instance\Fork\Argument\ArgumentDesc
      */
     private function getParameterType(\ReflectionParameter $parameter)
     {
-        if (null !== ($class = $parameter->getType())) {
-            return $class->__toString();
+        if (null !== ($class = $parameter->getClass())) {
+            return $class->name;
         } elseif ($parameter->isArray()) {
             return ArgumentDescription::TYPE_ARRAY;
         }
@@ -76,20 +74,7 @@ class ArgumentDescriptor extends \Untek\Core\Instance\Fork\Argument\ArgumentDesc
             return $callable;
         }
 
-        /*if(is_array($callable) && count($callable) > 1 && is_string($callable[0])) {
-            $reflectionClass = new \ReflectionClass($callable[0]);
-            return $reflectionClass->getMethod($callable[1]);
-        } elseif (is_array($callable)) {
-            $reflectionClass = new \ReflectionClass($callable[0]);
-            return $reflectionClass->getMethod($callable[1]);
-        } elseif(!is_callable($callable)) {
-            throw new \RuntimeException('Got a non-callable');
-        }*/
-
-        if(is_array($callable) && count($callable) > 1 && is_string($callable[0])) {
-            $reflectionClass = new \ReflectionClass($callable[0]);
-            return $reflectionClass->getMethod($callable[1]);
-        } elseif (!is_callable($callable)) {
+        if (!is_callable($callable)) {
             throw new \RuntimeException('Got a non-callable');
         } elseif (is_array($callable)) {
             $reflectionClass = new \ReflectionClass($callable[0]);

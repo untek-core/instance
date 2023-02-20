@@ -1,6 +1,6 @@
 <?php
 
-namespace Untek\Core\Instance\Libs\Resolvers;
+namespace ArgumentResolver;
 
 use Untek\Core\Instance\Fork\Argument\ArgumentDescription;
 use Untek\Core\Instance\Fork\Argument\ArgumentDescriptions;
@@ -11,48 +11,45 @@ use Untek\Core\Instance\Fork\Resolution\ConstraintResolver;
 use Untek\Core\Instance\Fork\Resolution\Resolution;
 use Untek\Core\Instance\Fork\Resolution\ResolutionConstraint;
 use Untek\Core\Instance\Fork\Resolution\ResolutionConstraintCollection;
-use Psr\Container\ContainerInterface;
 use Untek\Core\Instance\Fork\Resolution\Resolutions;
 
-class ArgumentMetadataResolver
+class ArgumentResolver
 {
+    /**
+     * @var ArgumentDescriptor
+     */
+    private $argumentDescriptor;
 
-    protected ?ContainerInterface $container = null;
-        protected ?\Untek\Core\Instance\Libs\Resolvers\ArgumentDescriptor $argumentDescriptor = null;
-        protected ?ConstraintResolver $constraintResolver = null;
+    /**
+     * @var ConstraintResolver
+     */
+    private $constraintResolver;
 
-    public function __construct(
-        ?ContainerInterface $container = null,
-        ?\Untek\Core\Instance\Libs\Resolvers\ArgumentDescriptor $argumentDescriptor = null,
-        ?ConstraintResolver $constraintResolver = null,
-    ) {
-        if($container) {
-            $this->container = $container;
-        }
-        $this->argumentDescriptor = $argumentDescriptor ?: new \Untek\Core\Instance\Libs\Resolvers\ArgumentDescriptor();
-        $this->constraintResolver = $constraintResolver ?: new ConstraintResolver();
+    /**
+     * @param ArgumentDescriptor $argumentDescriptor
+     * @param ConstraintResolver $constraintResolver
+     */
+    public function __construct(ArgumentDescriptor $argumentDescriptor, ConstraintResolver $constraintResolver)
+    {
+        $this->argumentDescriptor = $argumentDescriptor;
+        $this->constraintResolver = $constraintResolver;
     }
 
-    public function call($callback, array $availableArguments = []): mixed
+    /**
+     * Resolve the arguments needed by the given callable and the order of these
+     * arguments.
+     *
+     * It returns an array with the value of arguments in the right order.
+     *
+     * @param mixed $callable
+     * @param array $availableArguments
+     *
+     * @return array
+     */
+    public function resolveArguments($callable, array $availableArguments = [])
     {
-        $resolvedArguments = $this->resolve($callback, $availableArguments);
-        return call_user_func_array($callback, $resolvedArguments);
-    }
-
-    public function resolve($callback, array $availableArguments = [])
-    {
-        $descriptions = $this->argumentDescriptor->getDescriptions($callback);
+        $descriptions = $this->argumentDescriptor->getDescriptions($callable)->sortByPosition();
         $constraints = $this->constraintResolver->resolveConstraints($descriptions);
-
-        foreach ($descriptions as $argument) {
-            /** @var ArgumentDescription $argument */
-            if(!array_key_exists($argument->getName(), $availableArguments)) {
-                try {
-                    $argumentValue = $this->container->get($argument->getType());
-                    $availableArguments[$argument->getName()] = $argumentValue;
-                } catch (\Throwable $e) {}
-            }
-        }
 
         $resolutions = new Resolutions();
         foreach ($descriptions as $description) {
@@ -60,8 +57,11 @@ class ArgumentMetadataResolver
                 $this->getArgumentResolutions($constraints, $description, $availableArguments)
             );
         }
+
         $this->addMissingResolutions($resolutions, $descriptions);
+
         $arguments = $resolutions->sortByPriority()->toArgumentsArray();
+
         return $arguments;
     }
 
@@ -108,19 +108,13 @@ class ArgumentMetadataResolver
 
         if ($description->getType() === $this->argumentDescriptor->getValueType($argumentValue)) {
             $priority += 2;
-        } elseif ($constraints->hasConstraint(
-            ResolutionConstraint::STRICT_MATCHING,
-            [
-                'type' => $description->getType(),
-            ]
-        )) {
-            
-            /*throw new ResolutionException(
-                sprintf(
-                    'Strict matching for type "%s" can\'t be resolved',
-                    $description->getType()
-                )
-            );*/
+        } elseif ($constraints->hasConstraint(ResolutionConstraint::STRICT_MATCHING, [
+            'type' => $description->getType(),
+        ])) {
+            throw new ResolutionException(sprintf(
+                'Strict matching for type "%s" can\'t be resolved',
+                $description->getType()
+            ));
         }
 
         return $priority;
