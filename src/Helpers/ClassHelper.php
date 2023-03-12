@@ -3,7 +3,7 @@
 namespace Untek\Core\Instance\Helpers;
 
 use Psr\Container\ContainerInterface;
-use Untek\Core\Code\Helpers\PropertyHelper;
+use Untek\Core\Instance\Helpers\PropertyHelper;
 use Untek\Core\Container\Helpers\ContainerHelper;
 use Untek\Core\Contract\Common\Exceptions\InvalidArgumentException;
 use Untek\Core\Contract\Common\Exceptions\InvalidConfigException;
