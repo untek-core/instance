@@ -2,6 +2,7 @@
 
 namespace Untek\Core\Instance\Helpers;
 
+use Illuminate\Container\Container;
 use Psr\Container\ContainerInterface;
 use Untek\Core\Instance\Helpers\PropertyHelper;
 use Untek\Core\Container\Helpers\ContainerHelper;
@@ -134,7 +135,12 @@ class ClassHelper
         if ($container == null) {
             $container = ContainerHelper::getContainer();
         }
-        $instance = $container->make($definition['class'], $params);
+        if($container instanceof Container) {
+            $instance = $container->make($definition['class'], $params);
+        } else {
+            $instance = clone $container->get($definition['class']);
+        }
+
         self::configure($instance, $definition);
         return $instance;
     }
