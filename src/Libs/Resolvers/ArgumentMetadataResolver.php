@@ -141,8 +141,10 @@ class ArgumentMetadataResolver
             if ($description->isRequired()) {
                 throw new ArgumentResolutionException(
                     sprintf(
-                        'Argument at position %d is required and wasn\'t resolved',
-                        $description->getPosition()
+                        'Argument at position %d is required and wasn\'t resolved (type: %d, name: %d) ',
+                        $description->getPosition(),
+                        $description->getType(),
+                        $description->getName()
                     ),
                     $description
                 );
