@@ -164,7 +164,12 @@ class ClassHelper
         }
         $definition = self::normalizeComponentConfig($definition);
         $container = ContainerHelper::getContainer();
-        $object = $container->make($definition['class']);
+        if(method_exists($container, 'make')) {
+            $object = $container->make($definition['class']);
+        } else {
+            $object = $container->get($definition['class']);
+        }
+
         //$object = new $definition['class'];
         /*if ($definition['class']) {
             unset($definition['class']);
