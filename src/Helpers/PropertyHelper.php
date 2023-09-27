@@ -14,6 +14,12 @@ use Untek\Core\Code\Factories\PropertyAccess;
 class PropertyHelper
 {
 
+    public static function mergeObjects(object $sourceObject, object $targetObject): void
+    {
+        $sourceData = PropertyHelper::toArray($sourceObject);
+        PropertyHelper::setAttributes($targetObject, $sourceData);
+    }
+
     public static function createObject($className, array $attributes = []): object
     {
         $entityInstance = ClassHelper::createObject($className);
