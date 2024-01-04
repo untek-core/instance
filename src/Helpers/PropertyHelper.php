@@ -41,7 +41,7 @@ class PropertyHelper
             if ($attributes) {
 //                $propertyAccessor = PropertyAccess::createPropertyAccessor();
                 foreach ($attributes as $attribute) {
-                    $array[$attribute] = \Untek\Core\Instance\Helpers\PropertyHelper::getValue($entity, $attribute);
+                    $array[$attribute] = self::getValue($entity, $attribute);
 //                    $array[$attribute] = $propertyAccessor->getValue($entity, $attribute);
                 }
             } else {
@@ -51,7 +51,7 @@ class PropertyHelper
         if ($recursive) {
             foreach ($array as $key => $item) {
                 if (is_object($item) || is_array($item)) {
-                    $array[$key] = self::toArray($item, $recursive/*, $keyFormat*/);
+                    $array[$key] = self::toArray($item, $recursive);
                 }
             }
         }
