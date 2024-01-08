@@ -17,6 +17,30 @@ class ClassHelper
 {
 
     /**
+     * Получить короткое имя класса
+     * @param string $fullClassName
+     * @return string
+     */
+    public static function getShortClassName(string $fullClassName): string
+    {
+        if (empty(self::getNamespace($fullClassName))) {
+            return $fullClassName;
+        }
+
+        return substr($fullClassName, strrpos($fullClassName, '\\') + 1);
+    }
+
+    /**
+     * Получить namespace класса
+     * @param string $fullClassName
+     * @return string
+     */
+    public static function getNamespace(string $fullClassName): string
+    {
+        return substr($fullClassName, 0, strrpos($fullClassName, '\\'));
+    }
+
+    /**
      * Проверка существования касса, интерейса или трэйта.
      * @param string $name
      * @return bool
@@ -87,19 +111,19 @@ class ClassHelper
         }
     }
 
-    /**
+    /*
      * Получить namespace класса
      * @param string $name
      * @return string
      */
-    public static function getNamespace(string $name): string
+    /*public static function getNamespace(string $name): string
     {
         $name = trim($name, '\\');
         $arr = explode('\\', $name);
         array_pop($arr);
         $name = implode('\\', $arr);
         return $name;
-    }
+    }*/
 
     /**
      * Получить чистое имя класса
