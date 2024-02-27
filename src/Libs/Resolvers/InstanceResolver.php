@@ -100,7 +100,7 @@ class InstanceResolver
         return $this->createObjectInstance($className, $constructionArgs);
     }
 
-    private function createObjectInstance(string $className, array $constructionArgs): object
+    public function createObjectInstance(string $className, array $constructionArgs): object
     {
         if (count($constructionArgs) && method_exists($className, '__construct')) {
 //            $instance = new $className(...$constructionArgs);
