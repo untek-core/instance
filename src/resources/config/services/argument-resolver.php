@@ -1,40 +1,28 @@
 <?php
 
-use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Untek\Core\Instance\Fork\Resolution\ConstraintResolver;
+use Untek\Core\Instance\Libs\InstanceProvider;
 use Untek\Core\Instance\Libs\Resolvers\ArgumentDescriptor;
 use Untek\Core\Instance\Libs\Resolvers\ArgumentMetadataResolver;
-use Untek\Core\Kernel\Config\CallableConfigLoader;
 use Untek\Core\Instance\Libs\Resolvers\InstanceResolver;
-use Untek\Core\Instance\Libs\InstanceProvider;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use Untek\Core\Kernel\Config\CallableConfigLoader;
 
 return static function (ContainerConfigurator $configurator): void {
-    $services = $configurator->services()->defaults()->public();
+    $services = $configurator->services()->defaults()->public()->autowire();
 
+//    $services
+//        ->load('Untek\Core\Instance\\', __DIR__ . '/../../..')
+//        ->exclude([
+//            __DIR__ . '/../../../{resources,Domain,Application/Commands,Application/Queries,Application/Validators}',
+//            __DIR__ . '/../../../**/*{Event.php,Helper.php,Message.php,Task.php,Relation.php,Schema.php,Normalizer.php}',
+//            __DIR__ . '/../../../**/{Dto,Enums}',
+//        ]);
 
-    $services->set(InstanceResolver::class, InstanceResolver::class);
-    $services->set(InstanceProvider::class, InstanceProvider::class)
-        ->args([
-            service(ContainerInterface::class),
-            service(InstanceResolver::class),
-        ]);
-
-    $services->set(ArgumentDescriptor::class, ArgumentDescriptor::class);
-    $services->set(ConstraintResolver::class, ConstraintResolver::class);
-    $services->set(ArgumentMetadataResolver::class, ArgumentMetadataResolver::class)
-        ->args(
-            [
-                service(ContainerInterface::class),
-                service(ArgumentDescriptor::class),
-                service(ConstraintResolver::class),
-            ]
-        );
-    $services->set(CallableConfigLoader::class, CallableConfigLoader::class)
-        ->args(
-            [
-                service(ArgumentMetadataResolver::class)
-            ]
-        );
+    $services->set(InstanceResolver::class);
+//    $services->set(InstanceProvider::class);
+//    $services->set(ArgumentDescriptor::class);
+//    $services->set(ConstraintResolver::class);
+//    $services->set(ArgumentMetadataResolver::class);
+//    $services->set(CallableConfigLoader::class);
 };
